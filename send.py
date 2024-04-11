@@ -2,14 +2,13 @@
 Producer
 
 """
-import pika, os
+import pika, os, sys
 from dotenv import load_dotenv
 
 load_dotenv()
 
 url = os.environ.get("CLOUDAMQP_URL")
 
-print(url)
 params = pika.URLParameters(url)
 connection = pika.BlockingConnection(params)
 channel = connection.channel()
@@ -33,13 +32,20 @@ def send_to_queue(channel, routing_key, email, name, body):
 
     print("Message sent to queue")
 
-send_to_queue(channel, "email.notifications", "odina@admin.com", "Odina", "Here if your job offer!")
-send_to_queue(channel, "email.notifications", "odina@admin.com", "Odina", "Your salary is $3000")
-send_to_queue(channel, "email.notifications", "odina@admin.com", "Odina", "Congratulations!")
+def main():
+    print("* * *")
+    sender = input("Sender: ")
+    name = input("Name: ")
+    body = input("Body: ")
 
-try:
-    connection.close()
-    print("Connection is closed")
-except Exception as e:
-    print(f"Error {e}")
+    send_to_queue(channel, "email.notifications", sender, name, body)
 
+while True:
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Interrupt")
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
