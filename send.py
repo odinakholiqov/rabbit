@@ -15,37 +15,11 @@ channel = connection.channel()
 
 print("Connection is established")
 
-# channel.exchange_declare("emails", "direct")
-channel.queue_declare(queue="email.notifications")
+channel.queue_declare(queue="hello")
 
-# channel.queue_bind("email.notification", "emails", "notification")
+message = ' '.join(sys.argv[1:]) or "Hello World!"
+channel.basic_publish(exchange='',
+                      routing_key='hello',
+                      body=message)
 
-
-def send_to_queue(channel, routing_key, email, name, body):
-    msg = f"{email}, {name}, {body}"
-
-    channel.basic_publish(
-        exchange="",
-        routing_key=routing_key,
-        body=msg
-    )
-
-    print("Message sent to queue")
-
-def main():
-    print("* * *")
-    sender = input("Sender: ")
-    name = input("Name: ")
-    body = input("Body: ")
-
-    send_to_queue(channel, "email.notifications", sender, name, body)
-
-while True:
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Interrupt")
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+print(f" [x] Sent {message}")
